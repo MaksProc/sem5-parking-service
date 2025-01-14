@@ -163,6 +163,7 @@ public class ParkingLotController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+    //haskfakhsg
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteParkingLot(@PathVariable Long id) {
