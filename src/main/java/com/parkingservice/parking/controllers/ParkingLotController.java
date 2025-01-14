@@ -7,6 +7,8 @@ import com.parkingservice.parking.services.ParkingLotService;
 import com.parkingservice.parking.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 public class ParkingLotController {
 
     private final ParkingLotService parkingLotService;
+    private static final Logger logger = LogManager.getLogger(ParkingLotController.class);
 
     public ParkingLotController(ParkingLotService parkingLotService) {
         this.parkingLotService = parkingLotService;
@@ -31,6 +34,7 @@ public class ParkingLotController {
                     @ApiResponse(responseCode = "201", description = "Creation successful")
             })
     public ResponseEntity<ParkingLot> createParkingLot(@RequestBody ParkingLotDTO parkingLotDTO) {
+        logger.info("Handling POST request for /api/parking-lots.");
         ParkingLot createdParkingLot = parkingLotService.createParkingLot(
                 parkingLotDTO.getName(),
                 parkingLotDTO.getAddress(),
@@ -42,6 +46,7 @@ public class ParkingLotController {
 
     @GetMapping
     public ResponseEntity<List<ParkingLot>> getAllParkingLots() {
+        logger.info("Handling GET request for /api/parking-lots.");
         List<ParkingLot> parkingLots = parkingLotService.getAllParkingLots();
         return new ResponseEntity<>(parkingLots, HttpStatus.OK);
     }
@@ -55,10 +60,12 @@ public class ParkingLotController {
                     @ApiResponse(responseCode = "404", description = "Parking lot not found")
             })
     public ResponseEntity<ParkingLot> getParkingLotById(@PathVariable Long id) {
+        logger.info("Handling GET request for /api/parking-lots/" + id);
         try {
             ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
             return new ResponseEntity<>(parkingLot, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            logger.warn("Data not found for GET request for /api/parking-lots/" + id);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -74,6 +81,7 @@ public class ParkingLotController {
     public ResponseEntity<ParkingLot> updateParkingLot(@PathVariable Long id,
                                                        @RequestBody ParkingLotDTO parkingLotDTO
     ) {
+        logger.info("Handling PUT request for /api/parking-lots/" + id);
         try {
             ParkingLot updatedParkingLot = parkingLotService.updateParkingLot(
                     id,
@@ -83,12 +91,14 @@ public class ParkingLotController {
             );
             return new ResponseEntity<>(updatedParkingLot, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
+            logger.warn("Bad PUT request for /api/parking-lots/" + id + ". Cause: " + e.getCause());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteParkingLot(@PathVariable Long id) {
+        logger.info("Handling DEL request for /api/parking-lots/" + id);
         try {
             parkingLotService.deleteParkingLot(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
