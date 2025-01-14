@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="60">
+
+    <Properties>
+        <Property name="baseDir">./logs</Property>
+        <Property name="service">MyService</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{green} %highlight{%-5level
+                    }[%style{%t}{bright,yellow}] %style{%C{1.}}{dark,green}: %msg%n%throwable" />
+        </Console>
+
+        <RollingFile name="RollingFile"
+                     fileName="${baseDir}/${service}.log"
+                     filePattern="${baseDir}/$${date:yyyy-MM}/${service}_%d{yyyy-MMdd}_%i.log.gz">
+            <PatternLayout>
+                <pattern>
+                    %d{YYYY-MM-dd HH:mm:ss,SSSZ} %p %c{1}:%L - %m%n
+                </pattern>
+            </PatternLayout>
+            <Policies>
+                <!-- rollover on startup -->
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${baseDir}" maxDepth="2">
+                    <IfFileName glob="*/${service}*.log.gz">
+                        <!--Deletes older than 30 days-->
+                        <IfLastModified age="30d">
+                        </IfLastModified>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!-- LOG from these classes at INFO level, other at ERROR level -->
+        <Logger name="com.parkingservice.parking" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </Logger>
+
+        <Root level="ERROR">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>
