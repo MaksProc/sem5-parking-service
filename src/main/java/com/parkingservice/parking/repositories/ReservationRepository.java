@@ -11,4 +11,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // Finds reservations made by this user
     List<Reservation> findByUserUsername(String username);
+
+    List<Reservation> findAll();
 }
