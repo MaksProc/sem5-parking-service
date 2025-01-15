@@ -71,4 +71,63 @@ public class ReservationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PatchMapping("/export/excel")
+public ResponseEntity<String> exportReservationsToExcel() {
+    logger.info("Starting export of reservations to Excel.");
+    List<Reservation> reservations = reservationService.getAllReservations();
+    String[] columns = {"ID", "User ID", "Spot ID", "Start Time", "End Time", "Status"};
+
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Reservations");
+
+
+    Row headerRow = sheet.createRow(0);
+    for (int i = 0; i < columns.length; i++) {
+        Cell cell = headerRow.createCell(i);
+        cell.setCellValue(columns[i]);
+        cell.setCellStyle(createHeaderCellStyle(workbook));
+    }
+
+
+    int rowIdx = 1;
+    for (Reservation reservation : reservations) {
+        Row row = sheet.createRow(rowIdx++);
+        row.createCell(0).setCellValue(reservation.getId());
+        row.createCell(1).setCellValue(reservation.getUser().getId());
+        row.createCell(2).setCellValue(reservation.getParkingSpot().getId());
+        row.createCell(3).setCellValue(reservation.getStartTime().toString());
+        row.createCell(4).setCellValue(reservation.getEndTime().toString());
+        row.createCell(5).setCellValue(reservation.getStatus().toString());
+    }
+
+
+    for (int i = 0; i < columns.length; i++) {
+        sheet.autoSizeColumn(i);
+    }
+
+
+    try {
+        String userDesktop = System.getProperty("user.home") + "/Desktop";
+        Path filePath = Paths.get(userDesktop, "Reservations.xlsx");
+        try (FileOutputStream fileOut = new FileOutputStream(filePath.toFile())) {
+            workbook.write(fileOut);
+        }
+        workbook.close();
+        logger.info("Excel file saved to: " + filePath);
+        return new ResponseEntity<>("File saved to: " + filePath, HttpStatus.OK);
+    } catch (IOException e) {
+        logger.error("Error saving Excel file: " + e.getMessage());
+        return new ResponseEntity<>("Error saving file: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+private CellStyle createHeaderCellStyle(Workbook workbook) {
+    CellStyle style = workbook.createCellStyle();
+    Font font = workbook.createFont();
+    font.setBold(true);
+    style.setFont(font);
+    return style;
+}
+
 }
