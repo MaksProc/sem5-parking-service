@@ -97,4 +97,9 @@ public class ReservationService {
         reservation.setEndTime(LocalDateTime.now());
         return reservationRepository.save(reservation);
     }
+
+        public List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
 }
