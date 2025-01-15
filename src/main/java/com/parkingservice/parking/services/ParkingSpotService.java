@@ -68,4 +68,10 @@ public class ParkingSpotService {
     public List<ParkingSpot> getAvailableSpotsByParkingLotId(Long parkingLotId) {
         return parkingSpotRepository.findAvailableSpotsById(parkingLotId);
     }
+    
+    @Transactional(readOnly = true)
+public List<ParkingSpot> getAllParkingSpots() {
+    return parkingSpotRepository.findAll();
+}
+
 }
