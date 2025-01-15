@@ -8,8 +8,15 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -72,7 +79,7 @@ public class ReservationController {
         }
     }
 
-    @PatchMapping("/export/excel")
+    @GetMapping("/export/excel")
 public ResponseEntity<String> exportReservationsToExcel() {
     logger.info("Starting export of reservations to Excel.");
     List<Reservation> reservations = reservationService.getAllReservations();

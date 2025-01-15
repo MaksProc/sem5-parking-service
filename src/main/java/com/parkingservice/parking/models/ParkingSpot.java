@@ -33,4 +33,7 @@ public class ParkingSpot {
     @JsonBackReference
     private List<Reservation> reservations;
 
+    public boolean isOccupied() {
+        return this.isAvailable;
+    }
 }
