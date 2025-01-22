@@ -3,6 +3,7 @@ package com.parkingservice.parking.controllers;
 import com.parkingservice.parking.controllers.dto.ParkingSpotDTO;
 import com.parkingservice.parking.models.ParkingSpot;
 import com.parkingservice.parking.services.ParkingSpotService;
+import com.parkingservice.parking.services.ReservationService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/parking-spots")
 public class ParkingSpotController {
+
 
     private final ParkingSpotService parkingSpotService;
     private static final Logger logger = LogManager.getLogger(ParkingSpotController.class);
@@ -40,6 +42,7 @@ public class ParkingSpotController {
     public ResponseEntity<ParkingSpot> getParkingSpotById(@PathVariable Long id) {
         logger.info("Handling GET for /api/parking-spots/" + id);
         try {
+
             ParkingSpot parkingSpot = parkingSpotService.getParkingSpotById(id);
             return new ResponseEntity<>(parkingSpot, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -119,10 +122,10 @@ public class ParkingSpotController {
             }
             workbook.close();
             logger.info("Excel file saved to: " + filePath);
-            return new ResponseEntity<>("File saved to: " + filePath, HttpStatus.OK);
+            return new ResponseEntity<>("Spots report saved", HttpStatus.OK);
         } catch (IOException e) {
             logger.error("Error saving Excel file: " + e.getMessage());
-            return new ResponseEntity<>("Error saving file: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error saving spots report", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

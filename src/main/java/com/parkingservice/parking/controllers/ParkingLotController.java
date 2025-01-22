@@ -1,18 +1,16 @@
 package com.parkingservice.parking.controllers;
 
 import com.parkingservice.parking.controllers.dto.ParkingLotDTO;
-import com.parkingservice.parking.controllers.dto.UserDTO;
+import com.parkingservice.parking.controllers.dto.WeatherDTO;
 import com.parkingservice.parking.models.ParkingLot;
 import com.parkingservice.parking.services.ParkingLotService;
-import com.parkingservice.parking.services.UserService;
+import com.parkingservice.parking.services.WeatherService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +22,16 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/parking-lots")
+    @RequestMapping("/api/parking-lots")
 public class ParkingLotController {
 
     private final ParkingLotService parkingLotService;
+    private final WeatherService weatherService;
     private static final Logger logger = LogManager.getLogger(ParkingLotController.class);
 
-    public ParkingLotController(ParkingLotService parkingLotService) {
+    public ParkingLotController(ParkingLotService parkingLotService, WeatherService weatherService) {
         this.parkingLotService = parkingLotService;
+        this.weatherService = weatherService;
     }
 
 
@@ -171,6 +171,21 @@ public class ParkingLotController {
         try {
             parkingLotService.deleteParkingLot(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{id}/weather")
+    public ResponseEntity<WeatherDTO> getWeatherForLot(@PathVariable Long id) {
+        logger.info("Handling GET request for /api/parking-lots/" + id + "/weather");
+        try {
+            ParkingLot parkingLot = parkingLotService.getParkingLotById(id);
+            String cityName = parkingLot.getAddress().contains("Lublin") ? "Lublin" : "SomeOtherCity";
+            // cityName must not contain spaces because weather service needs it as requestParam
+
+            WeatherDTO weather = weatherService.getWeatherForCity(cityName);
+            return new ResponseEntity<>(weather, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
